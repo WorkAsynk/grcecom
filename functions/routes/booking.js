@@ -1,119 +1,151 @@
-const CRUD = require('../controller/CRUD.js');
-const db = require('../controller/db.js');
+/* eslint-disable require-jsdoc */
+/* eslint-disable max-len */
 
+const CRUD = require("../controller/CRUD.js");
+// const db = require("../controller/db.js");
+const NodeGeocoder = require("node-geocoder");
+const geolib = require("geolib");
+
+const baseFreightUnitPrice = 100; // 1kg = 100rs
+const baseFuelUnitPrice = 50; // 1km = 50rs
+const gstRate = 0.18; // GST rate
+
+
+// eslint-disable-next-line require-jsdoc
 function generateRandomString(length) {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * characters.length);
     result += characters.charAt(randomIndex);
   }
   return result;
 }
+// eslint-disable-next-line require-jsdoc
 function OrdersStatus() {
-  const status = ['Pending', 'In Transit', 'Delivered', 'Cancelled'];
+  const status = ["Pending", "In Transit", "Delivered", "Cancelled"];
   return status[0];
 }
-function ShipmentPrice() {
-  const price = [10000, 20000, 30000, 40000];
-  return price[0];
+const findTotalWeight = (productList) =>{
+  if (productList.length!==0) {
+    let totalWeight = 0;
+    productList.map((product)=>{
+      totalWeight = totalWeight + Number(product.weight);
+    });
+    return totalWeight;
+  } else {
+    return 0;
+  }
+};
+const findTotalWidth = (productList) =>{
+  if (productList.length!==0) {
+    let totalWidth = 0;
+    productList.map((product)=>{
+      totalWidth = totalWidth + Number(product.width);
+    });
+    return totalWidth;
+  } else {
+    return 0;
+  }
+};
+const findTotalHeight = (productList) =>{
+  if (productList.length!==0) {
+    let totalHeight = 0;
+    productList.map((product)=>{
+      totalHeight = totalHeight + Number(product.height);
+    });
+    return totalHeight;
+  } else {
+    return 0;
+  }
+};
+
+async function ShipmentPrice(pickupPincode, deliveryPincode, width, height, weight) {
+  const options = {
+    provider: "openstreetmap",
+  };
+
+  // eslint-disable-next-line new-cap
+  const geocoder = NodeGeocoder(options);
+
+  const pickupLocation = await geocoder.geocode(pickupPincode);
+  const deliveryLocation = await geocoder.geocode(deliveryPincode);
+
+  const dist = geolib.getDistance(
+      {latitude: pickupLocation[0].latitude, longitude: pickupLocation[0].longitude},
+      {latitude: deliveryLocation[0].latitude, longitude: deliveryLocation[0].longitude},
+  ) / 1000; // Convert from meters to kilometers
+
+  const freightCharges = Math.round(width*height*weight * baseFreightUnitPrice);
+  const fuelCharges = Math.round(dist * baseFuelUnitPrice);
+  const totalCharges = freightCharges + fuelCharges;
+  const gst = totalCharges * gstRate;
+  const totalPrice = Math.round(totalCharges + gst);
+  return {
+    totalPrice, freightCharges, fuelCharges,
+  };
 }
 const Booking = async (req, res) => {
   try {
     const {
-      originCode,
-      forwardingNumber,
-      destinationCode,
-      destinationCity,
-      productCode,
-      invoiceDate,
-      bookingTime,
-      inscanDate,
-      manifestDate,
-      serviceCode,
-      createdDate,
-      shipperCode,
-      shipperName,
-      shipperCity,
-      shipperContact,
-      shipperPincode,
-      consigneeCode,
-      consigneeName,
-      consigneeContact,
-      calendarYear,
-      shipperCompanyName,
-      consigneeCompanyName,
-      customerType,
-      fedexReference,
-      voidDate,
-      forwarderCode,
-      insuranceType,
-      runsheetNO,
-      maxFrieght,
-      minFrieght,
-      maxWeight,
-      minWeight,
-      pickupLocation,
-      deliveryLocation,
-      width,
-      height,
+      destinationData,
+      freightData,
+      consigneeData,
+      shipperData,
+      bookingData,
+      uid,
     } = req.body;
-
-    const data = {
-      originCode,
-      forwardingNumber,
-      destinationCode,
-      destinationCity,
-      productCode,
-      invoiceDate,
-      bookingTime,
-      inscanDate,
-      manifestDate,
-      serviceCode,
-      createdDate,
-      shipperCode,
-      shipperName,
-      shipperCity,
-      shipperContact,
-      shipperPincode,
-      consigneeCode,
-      consigneeName,
-      consigneeContact,
-      calendarYear,
-      shipperCompanyName,
-      consigneeCompanyName,
-      customerType,
-      fedexReference,
-      voidDate,
-      forwarderCode,
-      insuranceType,
-      runsheetNO,
-      minFrieght,
-      maxFrieght,
-      minWeight,
-      maxWeight,
-      pickupLocation,
-      deliveryLocation,
-      width,
-      height,
-    };
+    // const {destinationCode, destinationCity, deliveryLocation} = destinationData;
+    // const {forwardingNumberproductCode, productList, totalNumberofProducts} = freightData;
+    // const {pickupLocation, insuranceType, consigneeCompanyName, consigneeCode, consigneeName, consigneeContact, pickupPincode} = consigneeData;
+    // const {shipperCode, shipperName, shipperCity, shipperContact, shipperPincode, shipperCompanyName, shipperId}= shipperData;
+    // const {bookingTime, inscanDate, manifestDate, serviceCode, createdDate} = bookingData;
 
     const documentName = generateRandomString(10);
-    await CRUD.createData('temp', documentName, data);
 
-    let awbNumber = generateRandomString(10);
-    let referenceNumber = generateRandomString(7);
-    let ordersStatus = OrdersStatus();
-    let shipmentPrice = ShipmentPrice();
-    res.status(201).json({
-      message: 'Your shipment is booked',
-      awbNumber,
-      referenceNumber,
-      ordersStatus,
-      shipmentPrice
-    });
+
+    const awbNumber = generateRandomString(10);
+    const referenceNumber = generateRandomString(7);
+    // eslint-disable-next-line new-cap
+    const ordersStatus = OrdersStatus();
+    const width = findTotalWidth(freightData.productList);
+    const height = findTotalHeight(freightData.productList);
+    const weight = findTotalWeight(freightData.productList);
+    // eslint-disable-next-line new-cap
+    const {totalPrice, freightCharges, fuelCharges} = await ShipmentPrice(consigneeData.pickupPincode, destinationData.destinationCode, width, height, weight);
+    console.log(totalPrice, "hii");
+    if (totalPrice !== 0) {
+      const data = {
+        destinationData,
+        freightData,
+        consigneeData,
+        shipperData,
+        bookingData,
+        ordersStatus,
+        awbNumber,
+        referenceNumber,
+        totalPrice,
+        fuelCharges,
+        freightCharges,
+        weight,
+        height,
+        width,
+        uid,
+      };
+      await CRUD.createData("ecomOrder", documentName, data);
+      res.status(201).json({
+        message: "Your shipment is booked",
+        awbNumber,
+        referenceNumber,
+        ordersStatus,
+        totalPrice,
+        fuelCharges,
+        freightCharges,
+        uid,
+      });
+    }
   } catch (error) {
-    res.status(500).json({ error: 'Failed to save data', message: error.message });
+    res.status(500).json({error: "Failed to save data", message: error.message});
   }
 };
 

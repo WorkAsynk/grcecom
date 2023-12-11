@@ -1,5 +1,7 @@
-const db = require('./db.js');
-const { Firestore } = require('@google-cloud/firestore');
+/* eslint-disable max-len */
+/* eslint-disable require-jsdoc */
+// const db = require("./db.js");
+const {Firestore} = require("@google-cloud/firestore");
 
 const firestore = new Firestore();
 
@@ -29,5 +31,5 @@ module.exports = {
   createData,
   readData,
   updateData,
-  deleteData
+  deleteData,
 };
