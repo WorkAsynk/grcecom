@@ -32,4 +32,5 @@ module.exports = {
   readData,
   updateData,
   deleteData,
+  firestore,
 };
