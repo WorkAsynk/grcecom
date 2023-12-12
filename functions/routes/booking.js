@@ -9,7 +9,7 @@ const geolib = require("geolib");
 const baseFreightUnitPrice = 100; // 1kg = 100rs
 const baseFuelUnitPrice = 50; // 1km = 50rs
 const gstRate = 0.18; // GST rate
-
+const {firestore} = require('../controller/CRUD.js');
 
 // eslint-disable-next-line require-jsdoc
 function generateRandomString(length) {
@@ -59,6 +59,14 @@ const findTotalHeight = (productList) =>{
     return 0;
   }
 };
+//function that generates orderID 
+async function generateOrderID(collectionName) {
+  const docSnap = await firestore.collection(collectionName).get();
+  let count = docSnap.size + 1;
+  let paddedCount = String(count).padStart(7, '0');
+  let id = "GRC" + paddedCount;
+  return id;
+}
 
 async function ShipmentPrice(pickupPincode, deliveryPincode, width, height, weight) {
   const options = {
@@ -111,6 +119,7 @@ const Booking = async (req, res) => {
     const width = findTotalWidth(freightData.productList);
     const height = findTotalHeight(freightData.productList);
     const weight = findTotalWeight(freightData.productList);
+    const orderID = await generateOrderID("ecomOrder");
     // eslint-disable-next-line new-cap
     const {totalPrice, freightCharges, fuelCharges} = await ShipmentPrice(consigneeData.pickupPincode, destinationData.destinationCode, width, height, weight);
     console.log(totalPrice, "hii");
@@ -131,6 +140,7 @@ const Booking = async (req, res) => {
         height,
         width,
         uid,
+        orderID,
       };
       await CRUD.createData("ecomOrder", documentName, data);
       res.status(201).json({

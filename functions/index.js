@@ -6,6 +6,8 @@ const ViewStatus = require("./routes/viewStatus.js");
 const Booking = require("./routes/booking.js");
 const RateCalculator = require("./routes/ratecalculator.js");
 const getUser = require("./routes/get_user.js");
+const deleteDocument = require("./routes/delete_document.js");
+const updateData = require("./routes/update_data.js");
 app.use(express.json());
 app.use(cors({origin: true}));
 
@@ -18,5 +20,7 @@ app.post("/api/booking", Booking);
 app.post("/api/rate_calculator", RateCalculator);
 app.post("/api/view_status", ViewStatus);
 app.post("/api/get_user", getUser);
+app.post("/api/delete_document", deleteDocument);
+app.post("/api/update_data", updateData);
 exports.app = functions.https.onRequest(app);
 // firebase serve --only functions
