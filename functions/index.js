@@ -9,6 +9,8 @@ const getUser = require("./routes/get_user.js");
 const deleteDocument = require("./routes/delete_document.js");
 const updateData = require("./routes/update_data.js");
 const signUp = require("./routes/sign_up.js");
+const send_invoice = require("./routes/send_invoice.js");
+const BarCode = require("./routes/bar_code.js");
 app.use(express.json());
 app.use(cors({origin: true}));
 
@@ -23,6 +25,8 @@ app.post("/api/view_status", ViewStatus);
 app.post("/api/get_user", getUser);
 app.post("/api/delete_document", deleteDocument);
 app.post("/api/update_data", updateData);
+app.post("/api/send_invoice", send_invoice);
+app.post("/api/bar_code", BarCode);
 //authentication 
 app.post("/api/sign_up", signUp);
 exports.app = functions.https.onRequest(app);

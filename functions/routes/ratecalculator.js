@@ -18,9 +18,10 @@ const RateCalculator = async (req, res) => {
     const {
       pickupPincode,
       deliveryPincode,
-      weight,
+      // weight,
       height,
       width,
+      length
     } = req.body;
 
     const pickupLocation = await geocoder.geocode(pickupPincode);
@@ -31,7 +32,7 @@ const RateCalculator = async (req, res) => {
         {latitude: deliveryLocation[0].latitude, longitude: deliveryLocation[0].longitude},
     ) / 1000; // Convert from meters to kilometers
 
-    const volume = width*height*weight * baseFreightUnitPrice;
+    const volume = width*height*length* baseFreightUnitPrice/4500 ;
     const fuelCharges = dist * baseFuelUnitPrice;
     const totalCharges = volume + fuelCharges;
     const gst = totalCharges * gstRate;
