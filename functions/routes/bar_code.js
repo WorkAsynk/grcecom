@@ -7,8 +7,10 @@ const BarCode = async (req, res) => {
         const docSnap = await firestore.collection("ecomOrder").where("uid", "==", uid).get();
         if (!docSnap.empty) {
             let documents = [];
+            let docIds = [];
             docSnap.forEach(doc => {
                 documents.push(doc.data());
+                docIds.push(doc.id);
             });
             const awbnumber = documents[0].awbNumber; 
 
@@ -19,11 +21,15 @@ const BarCode = async (req, res) => {
                 height: 10,      // Bar height, in millimeters
                 includetext: true, // Show human-readable text
                 textxalign: 'center', 
-            }, function (err, png) {
+            }, async function (err, png) {
                 if (err) {
                     console.log(err);
                     res.status(500).json({ error: "Failed to generate barcode", message: err.message });
                 } else {
+                    // Convert the PNG to a base64 string
+                    const base64Png = png.toString('base64');
+                    // Add the base64 string to the same document in Firestore
+                    await firestore.collection('ecomOrder').doc(docIds[0]).update({ barcode: base64Png });
                     res.setHeader('Content-Type', 'image/png');
                     res.send(png);
                 }
@@ -38,5 +44,7 @@ const BarCode = async (req, res) => {
         res.status(500).json({ error: "Failed to retrieve data", message: error.message });
     }
 }
+
+module.exports = BarCode;
 
 module.exports = BarCode;

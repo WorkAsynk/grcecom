@@ -1,5 +1,8 @@
 {
   "projects": {
-    "default": "grc-logistics"
-  }
+    "default": "grc-logistics",
+    "grc": "grc-logistics"
+  },
+  "targets": {},
+  "etags": {}
 }
