@@ -1,18 +1,5 @@
-const {firestore} = require('../controller/CRUD.js');
-async function findData(collectionName, fieldName, fieldValue) {
-    const docSnap = await firestore.collection(collectionName).where(fieldName, "==", fieldValue).get();
-  
-    if (!docSnap.empty) {
-      let result;
-      docSnap.forEach((doc) => {
-        result = doc.data();
-      });
-      return result;
-    } else {
-      console.log("No such document!");
-      return null;
-    }
-  }
+/*  function viewStatus that handles an HTTP request to view the status of an order in an e-commerce system. */
+const {findData} = require('../controller/find_data.js');
 const viewStatus = async (req, res) => {
     try {
         const {
@@ -32,7 +19,6 @@ const viewStatus = async (req, res) => {
         }
 
         if (docData) {
-            console.log(docData);
             res.status(200).json({
                 ordersStatus: docData.ordersStatus,
                 deliveryData: docData.destinationData,

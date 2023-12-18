@@ -4,8 +4,8 @@ const generateInvoice = require('../controller/Invoice.js')
 const {storage} = require('../controller/db.js');
 const sendInvoice = async (req, res) => {
     try {
-        const {uid}= req.body;
-        const docSnap= await firestore.collection("ecomOrder").where("uid", "==", uid).get();
+        const {lrno}= req.body;
+        const docSnap= await firestore.collection("logisticOrder").where("lrno", "==", lrno).get();
         if (!docSnap.empty) {
             let documents = [];
             let docIds = [];
@@ -27,9 +27,9 @@ const sendInvoice = async (req, res) => {
             });
             blobStream.on('finish', async () => {
                 // The public URL can be used to directly access the file via HTTP.
-                const publicUrl = `https://storage.googleapis.com/${storage.bucket().name}/${blob.name}`;
+                const publicUrl = `https://storage.googleapis.com/${storage.bucket().name}/LO/${blob.name}`;
                 // Update the document in Firestore to include the invoice URL
-                const docRef = firestore.collection("ecomOrder").doc(docIds[0]);
+                const docRef = firestore.collection("logisticOrder").doc(docIds[0]);
                 await docRef.update({ invoice: publicUrl });
                 res.status(200).send({ url: publicUrl });
             });

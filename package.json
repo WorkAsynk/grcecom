@@ -18,5 +18,9 @@
     "node-geocoder": "^4.2.0",
     "pdfkit": "^0.14.0",
     "puppeteer": "^21.6.1"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "eslint-config-google": "^0.14.0"
   }
 }
