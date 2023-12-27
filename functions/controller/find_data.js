@@ -1,6 +1,7 @@
-const {firestore} = require('./CRUD.js');
+const { db } = require('./db.js');
+
 async function findData(collectionName, fieldName, fieldValue) {
-    const docSnap = await firestore.collection(collectionName).where(fieldName, "==", fieldValue).get();
+    const docSnap = await db.collection(collectionName).where(fieldName, "==", fieldValue).get();
   
     if (!docSnap.empty) {
       let result;
@@ -12,5 +13,6 @@ async function findData(collectionName, fieldName, fieldValue) {
       console.log("No such document!");
       return null;
     }
-  }
-  module.exports = findData;
+}
+
+module.exports = findData;

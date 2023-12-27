@@ -48,6 +48,7 @@ app.post("/api/warehouse/booking", Booking_WearHouse);
 /***** Auth ******/
 app.post("/api/sign_up", AuthController.signUp);
 app.post("/api/login", AuthController.login);
+app.post("/api/delete_user", AuthController.deleteUser);
 
 
 exports.app = functions.https.onRequest(app);
