@@ -3,8 +3,8 @@ const {firestore} = require('../controller/CRUD.js');
 const {storage} = require('../controller/db.js');
 const BarCode = async (req, res) => {
     try {
-        const {uid} = req.body;
-        const docSnap = await firestore.collection("logisticOrder").where("uid", "==", uid).get();
+        const {orderID} = req.body;
+        const docSnap = await firestore.collection("logisticOrder").where("orderID", "==", orderID).get();
         if (!docSnap.empty) {
             let documents = [];
             let docIds = [];

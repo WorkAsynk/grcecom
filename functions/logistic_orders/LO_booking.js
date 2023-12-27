@@ -1,5 +1,12 @@
 const createOrder = require("./LO_create_order");
-
+async function generateOrderID(collectionName) {
+    const docSnap = await firestore.collection(collectionName).get();
+    let count = docSnap.size + 1;
+    let paddedCount = String(count).padStart(7, '0');
+    let id = "GRC" + paddedCount;
+    return id;
+  }
+  
 const LO_Booking = async (req, res) => {
     try {
         const {

@@ -4,8 +4,8 @@ const generateInvoice = require('../controller/Invoice.js')
 const {storage} = require('../controller/db.js');
 const sendInvoice = async (req, res) => {
     try {
-        const {lrno}= req.body;
-        const docSnap= await firestore.collection("logisticOrder").where("lrno", "==", lrno).get();
+        const {orderID}= req.body;
+        const docSnap= await firestore.collection("logisticOrder").where("orderID", "==", orderID).get();
         if (!docSnap.empty) {
             let documents = [];
             let docIds = [];

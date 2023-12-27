@@ -4,11 +4,11 @@ const {firestore} = require('../controller/CRUD.js');
 // Define the async function to update data
 const updateData = async (req, res) => {   
     try {
-        // Destructure lrno and Data from the request body
-        const {lrno, Data} = req.body;
+        // Destructure oderID and Data from the request body
+        const {oderID, Data} = req.body;
 
-        // Query the 'ecomOrder' collection for documents where the 'lrno' field is equal to the provided lrno
-        const snapshot = await firestore.collection("logisticOrder").where('lrno', '==', lrno).get();
+        // Query the 'ecomOrder' collection for documents where the 'oderID' field is equal to the provided oderID
+        const snapshot = await firestore.collection("logisticOrder").where('oderID', '==', oderID).get();
 
         // Check if the snapshot is not empty, i.e., if there are any matching documents
         if (!snapshot.empty) {
@@ -36,7 +36,7 @@ const updateData = async (req, res) => {
             res.status(200).json({ message: "Successfully updated document" });
         } else {
             // If no matching document is found, send a 404 response
-            res.status(404).json({ error: "No document found with the provided lrno" });
+            res.status(404).json({ error: "No document found with the provided oderID" });
         }
     } catch (error) {
         console.log(error);
