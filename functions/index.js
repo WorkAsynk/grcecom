@@ -49,7 +49,7 @@ app.post("/api/warehouse/booking", Booking_WearHouse);
 app.post("/api/sign_up", AuthController.signUp);
 app.post("/api/login", AuthController.login);
 app.post("/api/delete_user", AuthController.deleteUser);
-
+app.post("/api/update_password", AuthController.updatePassword);
 
 exports.app = functions.https.onRequest(app);
 

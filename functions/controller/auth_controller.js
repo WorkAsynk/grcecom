@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
-const {auth} = require('./auth');
+const Auth = require('./auth');
 const deleteUser= require('./auth').deleteUser;
 
 class AuthController {
     async signUp(req, res) {
         try {
             const { email, password, name, contactNumber, role, userId, partnerType, walletBalance, packageType } = req.body;
-            const userRecord = await auth.signUp(email, password, name, contactNumber, role, userId, partnerType, walletBalance, packageType);
+            const userRecord = await Auth.signUp(email, password, name, contactNumber, role, userId, partnerType, walletBalance, packageType);
             console.log('Successfully created new user:', userRecord.uid);
 
             // Create a token
@@ -23,7 +23,7 @@ class AuthController {
     async login(req, res) { 
         try {
             const { email, password } = req.body;
-            const userRecord = await auth.login(email, password);
+            const userRecord = await Auth.login(email, password);
             console.log('Successfully logged in:', userRecord.uid);
 
             // Create a token
@@ -47,6 +47,17 @@ class AuthController {
         res.status(500).json({ error: "Failed to delete data", message: error.message });
     }
 }
+    async updatePassword(req, res) {
+        try {
+            const { uid, newPassword } = req.body;
+            await Auth.updatePassword(uid, newPassword);
+            res.status(200).json({ message: 'Password updated' });
+        } catch (error) {
+            console.error('Error updating password:', error);
+            res.status(400).send(error.message);
+        }
+    }
+
 }
 
 module.exports = new AuthController();

@@ -48,6 +48,18 @@ class Auth {
             throw new Error(error);
         }
     }
+    async updatePassword(uid, newPassword) {
+        try {
+            await auth.updateUser(uid, {
+                password: newPassword
+            });
+    
+            console.log(`Successfully updated user with ID: ${uid}`);
+        } catch (error) {
+            console.error(`Error updating user: ${error}`);
+            throw new Error(error);
+        }
+    }
 }
 
 module.exports = new Auth(auth);
