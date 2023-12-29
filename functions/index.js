@@ -17,7 +17,7 @@ const LO_get_user = require("./logistic_orders/LO_get_user.js");
 const LO_delete_document = require("./logistic_orders/LO_delete_document.js");
 const LO_update_data = require("./logistic_orders/LO_update_data.js");
 const LO_barcode = require("./logistic_orders/LO_barcode.js");
-const AuthController = require("./controller/auth_controller.js");
+const AuthController = require("./auth/auth_controller.js");
 const updateUserData = require("./users/update_user_data.js");
 app.use(express.json());
 app.use(cors({origin: true}));
