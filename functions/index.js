@@ -18,7 +18,7 @@ const LO_delete_document = require("./logistic_orders/LO_delete_document.js");
 const LO_update_data = require("./logistic_orders/LO_update_data.js");
 const LO_barcode = require("./logistic_orders/LO_barcode.js");
 const AuthController = require("./controller/auth_controller.js");
-
+const updateUserData = require("./users/update_user_data.js");
 app.use(express.json());
 app.use(cors({origin: true}));
 
@@ -45,6 +45,8 @@ app.post("/api/LO/update_data", LO_update_data);
 app.post("/api/LO/bar_code", LO_barcode);
 /***** Warehouse ******/
 app.post("/api/warehouse/booking", Booking_WearHouse);
+/***** User ******/
+app.post("/api/update_user_data", updateUserData);
 /***** Auth ******/
 app.post("/api/sign_up", AuthController.signUp);
 app.post("/api/login", AuthController.login);

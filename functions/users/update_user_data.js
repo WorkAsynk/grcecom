@@ -4,11 +4,11 @@ const { db } = require('../controller/db.js');
 // Define the async function to update data
 const updateUserData = async (req, res) => {   
     try {
-        // Destructure orderID and Data from the request body
-        const { orderID, Data } = req.body;
+        // Destructure uid and Data from the request body
+        const { uid, Data } = req.body;
 
-        // Get a reference to the document with the provided orderID
-        const docRef = db.collection('ecomOrder').doc(orderID);
+        // Get a reference to the document with the provided uid
+        const docRef = db.collection('users').doc(uid);
 
         // Get the data of the document
         const doc = await docRef.get();
@@ -32,7 +32,7 @@ const updateUserData = async (req, res) => {
             res.status(200).json({ message: "Successfully updated document" });
         } else {
             // If no matching document is found, send a 404 response
-            res.status(404).json({ error: "No document found with the provided orderID" });
+            res.status(404).json({ error: "No document found with the provided uid" });
         }
     } catch (error) {
         console.log(error);
