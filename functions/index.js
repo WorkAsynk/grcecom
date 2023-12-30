@@ -10,7 +10,7 @@ const deleteDocument = require("./routes/delete_document.js");
 const updateData = require("./routes/update_data.js");
 const send_invoice = require("./routes/send_invoice.js");
 const BarCode = require("./routes/bar_code.js");
-const Booking_WearHouse = require("./warehouse/booking_wh.js");
+const Booking_WareHouse = require("./warehouse/booking_wh.js");
 const LOBooking = require("./logistic_orders/LO_booking.js");
 const LO_invoice = require("./logistic_orders/LO_invoice.js");
 const LO_get_user = require("./logistic_orders/LO_get_user.js");
@@ -44,7 +44,7 @@ app.post("/api/LO/delete_document", LO_delete_document);
 app.post("/api/LO/update_data", LO_update_data);
 app.post("/api/LO/bar_code", LO_barcode);
 /***** Warehouse ******/
-app.post("/api/warehouse/booking", Booking_WearHouse);
+app.post("/api/warehouse/booking", Booking_WareHouse);
 /***** User ******/
 app.post("/api/update_user_data", updateUserData);
 /***** Auth ******/

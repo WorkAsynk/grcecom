@@ -1,5 +1,5 @@
-const { auth, db } = require('./db');
-const { createData } = require('./CRUD');
+const { auth, db } = require('../controller/db');
+const { createData } = require('../controller/CRUD');
 class Auth {
     constructor(authInstance) {
         this.auth = authInstance;

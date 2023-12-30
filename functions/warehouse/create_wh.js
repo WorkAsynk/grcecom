@@ -1,10 +1,11 @@
-const {firestore}= require('../controller/CRUD');
-const create_WearHouse = (data) => {
+const {db}= require('../controller/db');
+const create_WareHouse = (data) => {
     return new Promise((resolve, reject) => {
-        firestore.collection('warehouse').add(data).then(doc => {
+        db.collection('warehouse').add(data).then(doc => {
             resolve(doc.id);
         }).catch(err => {
             reject(err);
         })
     })
 }
+module.exports = create_WareHouse;
