@@ -23,10 +23,15 @@ async function updateData(collectionName, documentName, updatedData) {
 async function deleteData(collectionName, documentName) {
   await db.collection(collectionName).doc(documentName).delete();
 }
+async function saveUser(user, userUID) {
+  await db.collection('users').doc(userUID).set(user);
+}
+
 
 module.exports = {
   createData,
   readData,
   updateData,
   deleteData,
+  saveUser,
 };

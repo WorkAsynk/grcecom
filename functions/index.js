@@ -3,26 +3,14 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
-const ViewStatus = require("./routes/viewStatus.js");
-const Booking = require("./routes/booking.js");
-const RateCalculator = require("./routes/ratecalculator.js");
-const getUser = require("./routes/get_user.js");
-const deleteDocument = require("./routes/delete_document.js");
-const updateData = require("./routes/update_data.js");
-const send_invoice = require("./routes/send_invoice.js");
-const BarCode = require("./routes/bar_code.js");
+
+const index_LO = require("./logistic_orders/index_LO.js");
+const index_routes = require("./routes/index_routes.js");
 const Booking_WareHouse = require("./warehouse/booking_wh.js");
-const LOBooking = require("./logistic_orders/LO_booking.js");
-const LO_invoice = require("./logistic_orders/LO_invoice.js");
-const LO_get_user = require("./logistic_orders/LO_get_user.js");
-const LO_delete_document = require("./logistic_orders/LO_delete_document.js");
-const LO_update_data = require("./logistic_orders/LO_update_data.js");
-const LO_barcode = require("./logistic_orders/LO_barcode.js");
 const AuthController = require("./auth/auth_controller.js");
 const updateUserData = require("./users/update_user_data.js");
 const main_pr = require("./pickup_request/main_pr.js");
 const paymentRoutes = require('./payment/paymentRoutes');
-const { Auth } = require("firebase-admin/auth");
 
 // Parse URL-encoded bodies and JSON bodies
 app.use(express.urlencoded({ extended: true }));
@@ -38,21 +26,21 @@ app.get("/", (req, res) => {
   res.send("Hello World");
 });
 /*****  EcomOrder ******/
-app.post("/api/booking", Booking);
-app.post("/api/rate_calculator", RateCalculator);
-app.post("/api/view_status",AuthController.authenticateToken, ViewStatus);
-app.post("/api/get_user", getUser);
-app.post("/api/delete_document", deleteDocument);
-app.post("/api/update_data", updateData);
-app.post("/api/send_invoice", send_invoice);
-app.post("/api/bar_code", BarCode);
+app.post("/api/booking", index_routes.Booking);
+app.post("/api/rate_calculator", index_routes.RateCalculator);
+app.post("/api/view_status",AuthController.authenticateToken, index_routes.ViewStatus);
+app.post("/api/get_user", index_routes.getUser);
+app.post("/api/delete_document", index_routes.deleteDocument);
+app.post("/api/update_data", index_routes.updateData);
+app.post("/api/send_invoice", index_routes.send_invoice);
+app.post("/api/bar_code", index_routes.BarCode);
 /***** logisticOrder  ******/
-app.post("/api/LO/booking", LOBooking);
-app.post("/api/LO/invoice", LO_invoice);
-app.post("/api/LO/get_user", LO_get_user);
-app.post("/api/LO/delete_document", LO_delete_document);
-app.post("/api/LO/update_data", LO_update_data);
-app.post("/api/LO/bar_code", LO_barcode);
+app.post("/api/LO/booking", index_LO.LOBooking);
+app.post("/api/LO/invoice", index_LO.LO_invoice);
+app.post("/api/LO/get_user", index_LO.LO_get_user);
+app.post("/api/LO/delete_document", index_LO.LO_delete_document);
+app.post("/api/LO/update_data", index_LO.LO_update_data);
+app.post("/api/LO/bar_code", index_LO.LO_barcode);
 /***** Warehouse ******/
 app.post("/api/warehouse/booking", Booking_WareHouse);
 /***** User ******/

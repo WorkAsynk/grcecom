@@ -1,54 +1,66 @@
 const jwt = require('jsonwebtoken');
 const Auth = require('./auth');
 const deleteUser = require('./auth').deleteUser;
+const { auth} = require('../controller/db'); // Replace './db' with the path to your db.js file
 
 class AuthController {
     async signUp(req, res) {
         try {
-            const { email, password, name, contactNumber, role, userId, partnerType, walletBalance, packageType } = req.body;
+            const { email, password, name, contactNumber,  userId, partnerType, packageType, role } = req.body;
+            const walletBalance = 0;
             const userRecord = await Auth.signUp(email, password, name, contactNumber, role, userId, partnerType, walletBalance, packageType);
             console.log('Successfully created new user:', userRecord.uid);
 
-            // Create a token
-            const token = jwt.sign({ uid: userRecord.uid, role }, 'your-secret-key');
+            // Create a custom token
+            const customToken = await auth.createCustomToken(userRecord.uid);
 
-            // Set the token as an HTTP-only cookie
-            res.cookie('token', token, {
-                httpOnly: true,
-                // secure: true, // Uncomment this line to send the cookie over HTTPS only
-                // domain: 'your-domain.com', // Uncomment and replace with your domain if serving across multiple domains
-                // maxAge: 3600000 // Uncomment and set the desired cookie duration in milliseconds
-            });
-
-            // Send the response
-            res.status(200).json({ message: 'User created' });
+            // Send the response along with the custom token
+            res.status(200).json({ message: 'User created', customToken: customToken });
         } catch (error) {
             console.error('Error creating new user:', error);
             res.status(400).send(error.message);
         }
     }
-    async login(req, res) {
+    async  login(req, res) {
         try {
-            const { email, password } = req.body;
-            const userRecord = await Auth.login(email, password);
-            console.log('Successfully logged in:', userRecord.uid);
+            // Verify the ID token
+            const idToken = req.body.idToken;
+            const decodedToken = await auth.verifyIdToken(idToken);
 
-            // Create a token
-            const token = jwt.sign({ uid: userRecord.uid, role: userRecord.role }, 'your-secret-key');
+            // Issue a session cookie
+            const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 days
+            const sessionCookie = await auth.createSessionCookie(idToken, { expiresIn });
 
-            // Set the token as an HTTP-only cookie
-            res.cookie('token', token, {
-                httpOnly: true,
-                // secure: true, // Uncomment this line to send the cookie over HTTPS only
-                // domain: 'your-domain.com', // Uncomment and replace with your domain if serving across multiple domains
-                // maxAge: 3600000 // Uncomment and set the desired cookie duration in milliseconds
-            });
+            // Set the session cookie
+            const options = { maxAge: expiresIn, httpOnly: true };
+            res.cookie('session', sessionCookie, options);
 
             // Send the response
             res.status(200).json({ message: 'User logged in' });
         } catch (error) {
             console.error('Error logging in:', error);
             res.status(400).send(error.message);
+        }
+    }
+    async  authenticateToken(req, res, next) {
+        // Extract the session cookie from the cookies
+        const sessionCookie = req.cookies.session;
+    
+        if (!sessionCookie) {
+            return res.sendStatus(401);
+        }
+    
+        try {
+            // Verify the session cookie
+            const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    
+            // Set req.user to the decoded claims
+            req.user = decodedClaims;
+    
+            next();
+        } catch (error) {
+            console.error('Error verifying session cookie:', error);
+            res.sendStatus(403);
         }
     }
     async deleteUser(req, res) {
@@ -72,23 +84,7 @@ class AuthController {
             res.status(400).send(error.message);
         }
     }
-    async authenticateToken(req, res, next) {
-        // Extract the token from the cookies
-        const token = req.cookies.token;
-
-        if (token == null) {
-            return res.sendStatus(401);
-        }
-
-        jwt.verify(token, 'your-secret-key', (err, user) => {
-            if (err) {
-                return res.sendStatus(403);
-            }
-            req.user = user;
-            next();
-        });
-    }
-
+  
 }
 
 module.exports = new AuthController();
