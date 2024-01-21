@@ -1,9 +1,8 @@
-const {firestore} = require('../controller/CRUD.js');
 const getDocuments = require('../controller/get_documents.js');
 const getUser = async (req, res) => {
     try {
         const {orderID} = req.body;
-        const documents = await getDocuments("ecomOrder", 'orderID', orderID);
+        const documents = await getDocuments("logisticOrder", 'orderID', orderID);
         res.status(200).json({ order_count: documents.length, documents });
     }
     catch (error) {

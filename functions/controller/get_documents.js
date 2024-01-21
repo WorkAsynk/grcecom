@@ -1,15 +1,17 @@
-async function getDocuments(collectionName, fieldName, fieldValue) {
-    const docSnap = await firestore.collection(collectionName).where(fieldName, "==", fieldValue).get();
-  
-    if (!docSnap.empty) {
-        let documents = [];
-        docSnap.forEach(doc => {
-            documents.push(doc.data());
+const {db}= require('./db.js');
+const getDocuments = async (collection, field, value) => {
+    try {
+        const documents = await db.collection(collection).where(field, '==', value).get();
+        const docs = [];
+        documents.forEach(doc => {
+            docs.push(doc.data());
         });
-        return documents;
-    } else {
-        console.log("No such document!");
-        return [];
+        console.log("docs" + docs);
+        return docs;
+    }
+    catch (error) {
+        console.log(error);
+        throw error;    
     }
 }
 module.exports = getDocuments;
