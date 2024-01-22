@@ -62,7 +62,6 @@ const findTotalHeight = (productList) => {
     return 0;
   }
 };
-// function that generates orderID
 
 async function generateOrderID(collectionName) {
   const docSnap = await db.collection(collectionName).get();
@@ -113,7 +112,7 @@ async function ShipmentPrice(
     fuelCharges,
   };
 }
-const Booking = async (req, res) => {
+const BookingCourier = async (req, res) => {
   try {
     const {
       destinationData,
@@ -122,6 +121,7 @@ const Booking = async (req, res) => {
       shipperData,
       bookingData,
       uid,
+      bookingType,
     } = req.body;
     const documentName = generateRandomString(10);
 
@@ -132,7 +132,7 @@ const Booking = async (req, res) => {
     const width = findTotalWidth(freightData.productList);
     const height = findTotalHeight(freightData.productList);
     const weight = findTotalWeight(freightData.productList);
-    const orderID = await generateOrderID("ecomOrder");
+    const orderID = await generateOrderID("courier");
     // eslint-disable-next-line new-cap
     const { totalPrice, freightCharges, fuelCharges } = await ShipmentPrice(
         consigneeData.pickupPincode,
@@ -160,8 +160,9 @@ const Booking = async (req, res) => {
         width,
         uid,
         orderID,
+        bookingType,
       };
-      await CRUD.createData("ecomOrder", documentName, data);
+      await CRUD.createData("courier", documentName, data);
       res.status(201).json({
         message: "Your shipment is booked",
         awbNumber,
@@ -171,6 +172,7 @@ const Booking = async (req, res) => {
         fuelCharges,
         freightCharges,
         uid,
+        bookingType,
       });
     }
   }
@@ -181,4 +183,4 @@ const Booking = async (req, res) => {
   }
 };
 
-module.exports = Booking;
+module.exports = BookingCourier;

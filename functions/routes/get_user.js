@@ -1,4 +1,3 @@
-const {firestore} = require('../controller/CRUD.js');
 const getDocuments = require('../controller/get_documents.js');
 const getUser = async (req, res) => {
     try {

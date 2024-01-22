@@ -4,8 +4,9 @@ const RateCalculator = require("./ratecalculator.js");
 const getUser = require("./get_user.js");
 const deleteDocument = require("./delete_document.js");
 const updateData = require("./update_data.js");
-const send_invoice = require("./send_invoice.js");
+const sendInvoice = require("./send_invoice.js");
 const BarCode = require("./bar_code.js");
+// eslint-disable-next-line new-cap
 const Router = require("express").Router();
 
 Router.post("/view_status", ViewStatus);
@@ -14,7 +15,7 @@ Router.post("/rate_calculator", RateCalculator);
 Router.post("/get_user", getUser);
 Router.post("/delete_document", deleteDocument);
 Router.post("/update_data", updateData);
-Router.post("/send_invoice", send_invoice);
+Router.post("/send_invoice", sendInvoice);
 Router.post("/bar_code", BarCode);
 
 module.exports = Router;

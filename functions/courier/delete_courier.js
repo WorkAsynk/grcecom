@@ -1,10 +1,10 @@
 const { db } = require("../controller/db.js");
 
-const deleteDocument = async (req, res) => {
+const deleteDocumentCourier = async (req, res) => {
   try {
     const { orderID } = req.body;
     const snapshot = await db
-        .collection("ecomOrder")
+        .collection("courier")
         .where("orderID", "==", orderID)
         .get();
 
@@ -27,5 +27,4 @@ const deleteDocument = async (req, res) => {
         .json({ error: "Failed to delete document", message: error.message });
   }
 };
-
-module.exports = deleteDocument;
+module.exports = deleteDocumentCourier;

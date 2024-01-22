@@ -1,10 +1,10 @@
 const bwipjs = require('bwip-js');
-const {firestore} = require('../controller/CRUD.js');
+const {db} = require('../controller/db.js');
 const {storage} = require('../controller/db.js');
 const BarCode = async (req, res) => {
     try {
         const {uid} = req.body;
-        const docSnap = await firestore.collection("ecomOrder").where("uid", "==", uid).get();
+        const docSnap = await db.collection("ecomOrder").where("uid", "==", uid).get();
         if (!docSnap.empty) {
             let documents = [];
             let docIds = [];
@@ -40,8 +40,8 @@ const BarCode = async (req, res) => {
                     blobStream.on('finish', async () => {
                         // The public URL can be used to directly access the file via HTTP.
                         const publicUrl = `https://storage.googleapis.com/${storage.bucket().name}/${blob.name}`;
-                        // Update the document in Firestore to include the barcode URL
-                        const docRef = firestore.collection("ecomOrder").doc(docIds[0]);
+                        // Update the document in db to include the barcode URL
+                        const docRef = db.collection("ecomOrder").doc(docIds[0]);
                         await docRef.update({ barcode: publicUrl });
                         res.status(200).send({ url: publicUrl });
                     });
