@@ -3,6 +3,7 @@ const crypto = require('crypto');
 require('dotenv').config();
 const findData = require('../controller/find_data');
 const {saveUser} = require('../controller/CRUD');
+const Router = require("express").Router();
 
 const createOrderRoute = async (req, res) => {
     const { amount, currency, receipt } = req.body;
@@ -50,4 +51,8 @@ const failureRoute = (req, res) => {
     res.status(400).json({ status: 'failed' });
 };
 
-module.exports = { createOrderRoute, successRoute, failureRoute };
+Router.post("/create", createOrderRoute);
+Router.post("/success", successRoute);
+Router.post("/failure", failureRoute);
+
+module.exports = Router;
