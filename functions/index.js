@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 
 const loRoutes = require("./logistic_orders/index_LO.js");
-const ecomRoutes = require("./routes/index_routes.js");
+const ecomRoutes = require("./Ecom/index_routes.js");
 const bookingWareHouse = require("./warehouse/booking_wh.js");
 const authRoutes = require("./auth/index_auth.js");
 const pickUpRequest = require("./pickup_request/index_pr.js");

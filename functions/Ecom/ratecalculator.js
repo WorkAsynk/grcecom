@@ -21,28 +21,38 @@ const RateCalculator = async (req, res) => {
       // weight,
       height,
       width,
-      length
+      length,
     } = req.body;
 
     const pickupLocation = await geocoder.geocode(pickupPincode);
     const deliveryLocation = await geocoder.geocode(deliveryPincode);
 
-    const dist = geolib.getDistance(
-        {latitude: pickupLocation[0].latitude, longitude: pickupLocation[0].longitude},
-        {latitude: deliveryLocation[0].latitude, longitude: deliveryLocation[0].longitude},
-    ) / 1000; // Convert from meters to kilometers
+    const dist =
+      geolib.getDistance(
+          {
+            latitude: pickupLocation[0].latitude,
+            longitude: pickupLocation[0].longitude,
+          },
+          {
+            latitude: deliveryLocation[0].latitude,
+            longitude: deliveryLocation[0].longitude,
+          },
+      ) / 1000; // Convert from meters to kilometers
 
-    const volume = width*height*length* baseFreightUnitPrice/4500 ;
+    const volume = (width * height * length * baseFreightUnitPrice) / 4500;
     const fuelCharges = dist * baseFuelUnitPrice;
     const totalCharges = volume + fuelCharges;
     const gst = totalCharges * gstRate;
 
     const totalChargesIncludingGST = totalCharges + gst;
 
-    res.json({totalCharges: totalChargesIncludingGST});
-  } catch (error) {
+    res.json({ totalCharges: totalChargesIncludingGST });
+  }
+  catch (error) {
     console.log(error);
-    res.status(500).json({error: "Failed to calculate rate", message: error.message});
+    res
+        .status(500)
+        .json({ error: "Failed to calculate rate", message: error.message });
   }
 };
 
