@@ -10,6 +10,7 @@ const pickUpRequest = require("./pickup_request/index_pr.js");
 const authenticateToken = require("./middleware/authenticateToken.js");
 const paymentRoutes = require("./payment/paymentRoutes");
 const courier = require("./courier/index_courier");
+const sendMail = require("./mail/send_mail");
 
 const setupMiddleware = require("./middleware/index_middleware");
 setupMiddleware(app);
@@ -24,6 +25,8 @@ app.use("/api/pickup_request", pickUpRequest);
 app.use("/api/user", authRoutes);
 app.use("/api/order", authenticateToken, paymentRoutes);
 app.use("/api/courier", courier);
+app.use("/api/mail", sendMail);
+
 exports.app = functions.https.onRequest(app);
 
 // firebase serve --only functions
