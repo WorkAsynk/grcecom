@@ -1,9 +1,15 @@
-const puppeteer = require('puppeteer');
-
+const puppeteer = require("puppeteer");
+/**
+ *@param {object} data
+ *@return {Promise<Buffer>} pdf
+ */
 async function generateInvoice(data) {
-    const browser = await puppeteer.launch({ headless: "new" });
-    const page = await browser.newPage();
-    const itemsHtml = Array.isArray(data.freightData.productList) ? data.freightData.productList.map(product => `
+  const browser = await puppeteer.launch({ headless: "new" });
+  const page = await browser.newPage();
+  const itemsHtml = Array.isArray(data.freightData.productList) ?
+    data.freightData.productList
+        .map(
+            (product) => `
         <tr>
             <td>${product.id}</td>
             <td>${product.name}</td>
@@ -11,9 +17,12 @@ async function generateInvoice(data) {
             <td>${product.width}</td>
             <td>${product.weight}</td>
         </tr>
-`).join('') : '';
-    // Generate the HTML for the invoice
-    const html = `
+`,
+        )
+        .join("") :
+    "";
+  // Generate the HTML for the invoice
+  const html = `
         <html>
         <style>
         body {
@@ -79,7 +88,8 @@ async function generateInvoice(data) {
                 <h1>Invoice for order ${data.orderID}</h1>
                 <p><strong>Order Status: </strong> ${data.ordersStatus}</p>
                 <h3>Invoice Number</h3>
-                <h4 style='background: powderblue'>AWB number: ${data.awbNumber}</h4>
+                <h4 style='background: powderblue'>AWB number: 
+                ${data.awbNumber}</h4>
 <table style='width: 100%; border-collapse: collapse;'>
   <tr>
     <td style='width: 50%; vertical-align: top;'>
@@ -118,7 +128,8 @@ async function generateInvoice(data) {
                  
                 </table>
                 <p><strong>Sub Total Value </strong>: ${data.totalPrice} ₹</p>
-                <p><strong>Number of products:</strong> ${data.freightData.totalNumberofProducts}</p>   
+                <p><strong>Number of products:</strong> 
+                ${data.freightData.totalNumberofProducts}</p>   
                 <p><strong>Total Weight:</strong> ${data.weight} kg</p>
                 <div class="signature-date">
                 <div>
@@ -132,12 +143,12 @@ async function generateInvoice(data) {
         </html>
     `;
 
-    await page.setContent(html);
-    const pdf = await page.pdf({ format: 'A4' });
+  await page.setContent(html);
+  const pdf = await page.pdf({ format: "A4" });
 
-    await browser.close();
+  await browser.close();
 
-    return pdf;
+  return pdf;
 }
 
 module.exports = generateInvoice;

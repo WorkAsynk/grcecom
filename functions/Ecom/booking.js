@@ -10,7 +10,7 @@ const baseFreightUnitPrice = 100; // 1kg = 100rs
 const baseFuelUnitPrice = 50; // 1km = 50rs
 const gstRate = 0.18; // GST rate
 const { db } = require("../controller/db.js");
-
+const sendEmail = require("../mail/mail_controller.js");
 // eslint-disable-next-line require-jsdoc
 function generateRandomString(length) {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -162,6 +162,18 @@ const Booking = async (req, res) => {
         orderID,
       };
       await CRUD.createData("ecomOrder", documentName, data);
+      try {
+        await sendEmail(
+            shipperData.email,
+            "Booking Confirmation",
+            awbNumber,
+            consigneeData,
+            destinationData,
+        );
+      }
+      catch (error) {
+        console.log(`Error sending email: ${error}`);
+      }
       res.status(201).json({
         message: "Your shipment is booked",
         awbNumber,

@@ -11,6 +11,7 @@ const authenticateToken = require("./middleware/authenticateToken.js");
 const paymentRoutes = require("./payment/paymentRoutes");
 const courier = require("./courier/index_courier");
 const sendMail = require("./mail/send_mail");
+const message = require("./messaging/messaging_route");
 
 const setupMiddleware = require("./middleware/index_middleware");
 setupMiddleware(app);
@@ -26,6 +27,7 @@ app.use("/api/user", authRoutes);
 app.use("/api/order", authenticateToken, paymentRoutes);
 app.use("/api/courier", courier);
 app.use("/api/mail", sendMail);
+app.use("/api/message", message);
 
 exports.app = functions.https.onRequest(app);
 
