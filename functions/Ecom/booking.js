@@ -122,6 +122,7 @@ const Booking = async (req, res) => {
       shipperData,
       bookingData,
       uid,
+      orderData,
     } = req.body;
     const documentName = generateRandomString(10);
 
@@ -160,6 +161,7 @@ const Booking = async (req, res) => {
         width,
         uid,
         orderID,
+        orderData,
       };
       await CRUD.createData("ecomOrder", documentName, data);
       try {

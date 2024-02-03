@@ -12,6 +12,7 @@ const paymentRoutes = require("./payment/paymentRoutes");
 const courier = require("./courier/index_courier");
 const sendMail = require("./mail/send_mail");
 const message = require("./messaging/messaging_route");
+const barCodeTester = require("./controller/barcodtester.js");
 
 const setupMiddleware = require("./middleware/index_middleware");
 setupMiddleware(app);
@@ -28,7 +29,7 @@ app.use("/api/order", authenticateToken, paymentRoutes);
 app.use("/api/courier", courier);
 app.use("/api/mail", sendMail);
 app.use("/api/message", message);
-
+app.post("/api/barcode", barCodeTester);
 exports.app = functions.https.onRequest(app);
 
 // firebase serve --only functions
