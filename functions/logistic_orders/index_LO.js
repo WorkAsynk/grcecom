@@ -4,7 +4,7 @@ const loGetUser = require("./LO_get_user.js");
 const loDeleteDocument = require("./LO_delete_document.js");
 const loUpdateData = require("./LO_update_data.js");
 const lobarcode = require("./LO_barcode.js");
-
+const orderStatus = require("./track_api.js");
 // eslint-disable-next-line new-cap
 const router = require("express").Router();
 
@@ -14,5 +14,5 @@ router.post("/get_user", loGetUser);
 router.post("/delete_document", loDeleteDocument);
 router.post("/update_data", loUpdateData);
 router.post("/bar_code", lobarcode);
-
+router.post("/order/status", orderStatus);
 module.exports = router;
