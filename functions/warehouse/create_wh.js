@@ -1,5 +1,5 @@
 const { db } = require("../controller/db");
-const create_WareHouse = (data) => {
+const createWareHouse = (data) => {
   return new Promise((resolve, reject) => {
     db.collection("warehouse")
         .add(data)
@@ -11,4 +11,4 @@ const create_WareHouse = (data) => {
         });
   });
 };
-module.exports = create_WareHouse;
+module.exports = createWareHouse;

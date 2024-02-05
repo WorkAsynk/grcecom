@@ -1,6 +1,6 @@
-const create_WareHouse = require("./create_wh");
+const createWareHouse = require("./create_wh");
 
-const Booking_WareHouse = async (req, res) => {
+const bookingWareHouse = async (req, res) => {
   try {
     const {
       uid,
@@ -21,8 +21,8 @@ const Booking_WareHouse = async (req, res) => {
         },
       ],
     };
-    // Call create_WareHouse with the warehouse data
-    const warehouseId = await create_WareHouse(warehouseData);
+    // Call createWareHouse with the warehouse data
+    const warehouseId = await createWareHouse(warehouseData);
 
     // Respond with a success message
     res
@@ -34,4 +34,4 @@ const Booking_WareHouse = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-module.exports = Booking_WareHouse;
+module.exports = bookingWareHouse;
