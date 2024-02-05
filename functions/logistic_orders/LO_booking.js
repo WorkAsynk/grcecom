@@ -63,7 +63,7 @@ const loBooking = async (req, res) => {
     }
     const snapshot = await db
         .collection("logisticOrder")
-        .where("lrno" === lrno)
+        .where("lrno", "==", lrno)
         .get();
     if (snapshot.empty) {
       console.log("No matching documents.");
@@ -74,8 +74,8 @@ const loBooking = async (req, res) => {
     });
     const docRef = db.collection("logisticOrder").doc(order.uid);
     await docRef.update({
-      manifestID: manifestByID.status.value.waybills,
-      lrno: manifestByID.status.value.lrnum,
+      "manifest.waybills": manifestByID.status.value.waybills,
+      "manifest.lrnum": manifestByID.status.value.lrnum,
     });
 
     res.status(200).send(order);
