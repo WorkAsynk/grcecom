@@ -116,6 +116,7 @@ async function ShipmentPrice(
 const BookingCourier = async (req, res) => {
   try {
     const {
+      orderData,
       destinationData,
       freightData,
       consigneeData,
@@ -146,6 +147,7 @@ const BookingCourier = async (req, res) => {
     if (totalPrice !== 0) {
       const data = {
         destinationData,
+        orderData,
         freightData,
         consigneeData,
         shipperData,
