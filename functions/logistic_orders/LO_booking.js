@@ -1,29 +1,49 @@
+/* eslint-disable camelcase */
 const createOrder = require("./LO_create_order");
 const manifest = require("./handleManifest");
 const { db } = require("../controller/db");
 const loBooking = async (req, res) => {
   try {
-    const { orderData, shippingData, consigneeData, pickupData } = req.body;
-    if (!orderData || !shippingData || !consigneeData || !pickupData) {
-      return res.status(400).send("Missing required data in request body.");
-    }
+    const {
+      ident,
+      pickup_location,
+      drop_off_location,
+      return_address,
+      d_mode,
+      amount,
+      payment_mode,
+      rov_insurance,
+      invoices,
+      weight,
+      suborders,
+      dimensions,
+      consignee_gst_tin,
+      seller_gst_tin,
+      cb,
+    } = req.body;
+
     const lrno = "LRNO" + Math.floor(Math.random() * 1000000000);
     if (!lrno) {
       return res.status(500).send("Failed to generate order ID.");
     }
     const postData = {
-      orderData,
-      shippingData,
-      consigneeData,
-      pickupData,
+      ident: ident,
+      pickup_location: pickup_location,
+      drop_off_location: drop_off_location,
+      return_address: return_address,
+      d_mode: d_mode,
+      amount: amount,
+      payment_mode: payment_mode,
+      rov_insurance: rov_insurance,
+      invoices: invoices,
+      weight: weight,
+      suborders: suborders,
+      dimensions: dimensions,
+      consignee_gst_tin: consignee_gst_tin,
+      seller_gst_tin: seller_gst_tin,
+      cb: cb,
     };
-    const order = await createOrder(
-        lrno,
-        orderData,
-        shippingData,
-        consigneeData,
-        pickupData,
-    );
+    const order = await createOrder(lrno, postData);
 
     if (!order) {
       return res.status(500).send("Failed to create order.");
