@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
-const {db} = require("./db.js");
+const { db } = require("./db.js");
 
 async function createData(collectionName, documentName, data) {
   await db.collection(collectionName).doc(documentName).set(data);
@@ -11,7 +11,8 @@ async function readData(collectionName, documentName) {
 
   if (docSnap.exists) {
     console.log(docSnap.data());
-  } else {
+  }
+  else {
     console.log("No such document!");
   }
 }
@@ -24,9 +25,8 @@ async function deleteData(collectionName, documentName) {
   await db.collection(collectionName).doc(documentName).delete();
 }
 async function saveUser(user, userUID) {
-  await db.collection('users').doc(userUID).set(user);
+  await db.collection("users").doc(userUID).set(user);
 }
-
 
 module.exports = {
   createData,
