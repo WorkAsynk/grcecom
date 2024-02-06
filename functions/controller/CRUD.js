@@ -1,30 +1,31 @@
 /* eslint-disable max-len */
 /* eslint-disable require-jsdoc */
-// const db = require("./db.js");
-const {Firestore} = require("@google-cloud/firestore");
-
-const firestore = new Firestore();
+const { db } = require("./db.js");
 
 async function createData(collectionName, documentName, data) {
-  await firestore.collection(collectionName).doc(documentName).set(data);
+  await db.collection(collectionName).doc(documentName).set(data);
 }
 
 async function readData(collectionName, documentName) {
-  const docSnap = await firestore.collection(collectionName).doc(documentName).get();
+  const docSnap = await db.collection(collectionName).doc(documentName).get();
 
   if (docSnap.exists) {
     console.log(docSnap.data());
-  } else {
+  }
+  else {
     console.log("No such document!");
   }
 }
 
 async function updateData(collectionName, documentName, updatedData) {
-  await firestore.collection(collectionName).doc(documentName).update(updatedData);
+  await db.collection(collectionName).doc(documentName).update(updatedData);
 }
 
 async function deleteData(collectionName, documentName) {
-  await firestore.collection(collectionName).doc(documentName).delete();
+  await db.collection(collectionName).doc(documentName).delete();
+}
+async function saveUser(user, userUID) {
+  await db.collection("users").doc(userUID).set(user);
 }
 
 module.exports = {
@@ -32,4 +33,5 @@ module.exports = {
   readData,
   updateData,
   deleteData,
+  saveUser,
 };
