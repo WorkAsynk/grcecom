@@ -34,7 +34,6 @@ const loBooking = async (req, res) => {
       cb,
       OrderStaus = "Pending",
     } = req.body;
-
     const orderID = await generateOrderID("logisticOrder");
     const lrno = "LRNO" + Math.floor(Math.random() * 1000000000);
     if (!lrno) {
@@ -58,6 +57,7 @@ const loBooking = async (req, res) => {
       cb: cb,
       orderStatus: OrderStaus,
       orderID: orderID,
+      lrno: lrno,
     };
     const docRef = await db.collection("logisticOrder").add(postData);
     postData.uid = docRef.id;
