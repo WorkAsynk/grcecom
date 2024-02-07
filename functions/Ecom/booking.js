@@ -10,7 +10,8 @@ const baseFreightUnitPrice = 100; // 1kg = 100rs
 const baseFuelUnitPrice = 50; // 1km = 50rs
 const gstRate = 0.18; // GST rate
 const { db } = require("../controller/db.js");
-const sendEmail = require("../mail/mail_controller.js");
+const shipRocketBookingIntegration = require("./integrate_rocket.js");
+// const sendEmail = require("../mail/mail_controller.js");
 // eslint-disable-next-line require-jsdoc
 function generateRandomString(length) {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -22,7 +23,7 @@ function generateRandomString(length) {
   return result;
 }
 // eslint-disable-next-line require-jsdoc
-function OrdersStatus() {
+function OrderStatus() {
   const status = ["Pending", "In Transit", "Delivered", "Cancelled"];
   return status[0];
 }
@@ -129,7 +130,7 @@ const Booking = async (req, res) => {
     const awbNumber = generateRandomString(10);
     const referenceNumber = generateRandomString(7);
     // eslint-disable-next-line new-cap
-    const ordersStatus = OrdersStatus();
+    const orderStatus = OrderStatus();
     const width = findTotalWidth(freightData.productList);
     const height = findTotalHeight(freightData.productList);
     const weight = findTotalWeight(freightData.productList);
@@ -142,7 +143,6 @@ const Booking = async (req, res) => {
         height,
         weight,
     );
-    console.log(totalPrice, "hii");
     if (totalPrice !== 0) {
       const data = {
         destinationData,
@@ -150,7 +150,7 @@ const Booking = async (req, res) => {
         consigneeData,
         shipperData,
         bookingData,
-        ordersStatus,
+        orderStatus,
         awbNumber,
         referenceNumber,
         totalPrice,
@@ -164,28 +164,26 @@ const Booking = async (req, res) => {
         orderData,
       };
       await CRUD.createData("ecomOrder", documentName, data);
-      try {
-        await sendEmail(
-            shipperData.email,
-            "Booking Confirmation",
-            awbNumber,
-            consigneeData,
-            destinationData,
-        );
+      console.log("Data saved successfully");
+      // try {
+      //   await sendEmail(
+      //       shipperData.email,
+      //       "Booking Confirmation",
+      //       awbNumber,
+      //       consigneeData,
+      //       destinationData,
+      //   );
+      // }
+      // catch (error) {
+      //   console.log(`Error sending email: ${error}`);
+      // }
+      const response = await shipRocketBookingIntegration(data);
+      if (response.status === 200) {
+        res.status(200).json({ message: "Booking Successful" });
       }
-      catch (error) {
-        console.log(`Error sending email: ${error}`);
+      else {
+        res.status(500).json({ message: "Booking Failed" });
       }
-      res.status(201).json({
-        message: "Your shipment is booked",
-        awbNumber,
-        referenceNumber,
-        ordersStatus,
-        totalPrice,
-        fuelCharges,
-        freightCharges,
-        uid,
-      });
     }
   }
   catch (error) {
