@@ -1,7 +1,7 @@
 const axios = require("axios");
 const functions = require("firebase-functions");
 const CircularJSON = require("circular-json");
-
+const CRUD = require("../controller/CRUD.js");
 const shipRocketBookingIntegration = async (data) => {
   try {
     functions.logger.info("\n\nData: ", data + "\n\n");
@@ -45,7 +45,6 @@ const shipRocketBookingIntegration = async (data) => {
       weight: data.weight,
     };
     const token = process.env.SHIPROCKET_TOKEN;
-
     functions.logger.info("Data: ", CircularJSON.stringify(Data));
     const response = await axios
         .post(
@@ -71,7 +70,24 @@ const shipRocketBookingIntegration = async (data) => {
           }
           throw error;
         });
+
     functions.logger.info("Response: ", response);
+    const forwardingOrderID = response.data.order_id;
+    // eslint-disable-next-line camelcase
+    const shipment_id = response.data.shipment_id;
+    const forwardingAWBNumber = response.data.awb_code;
+    const updateData = {
+      forwardingOrderID: forwardingOrderID ? forwardingOrderID : "",
+      // eslint-disable-next-line camelcase
+      shipment_id: shipment_id ? shipment_id : "",
+      forwardingAWBNumber: forwardingAWBNumber ? forwardingAWBNumber : "",
+    };
+
+    CRUD.updateDataAccordingToField("ecomOrder",
+        "orderID",
+        data.orderID,
+        "shiprocket",
+        updateData);
     return response;
   }
   catch (error) {

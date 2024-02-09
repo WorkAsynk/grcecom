@@ -8,6 +8,7 @@ const sendInvoice = require("./send_invoice.js");
 const BarCode = require("./bar_code.js");
 const routeOfRocket = require("./integrate_rocket.js");
 const trackOrder = require("./trackOrder.js");
+const shipRocketTrack = require("./trackShipRocket.js");
 // eslint-disable-next-line new-cap
 const Router = require("express").Router();
 
@@ -21,5 +22,6 @@ Router.post("/send_invoice", sendInvoice);
 Router.post("/bar_code", BarCode);
 Router.get("/rocket", routeOfRocket);
 Router.post("/track_order", trackOrder);
+Router.post("/track_shiprocket", shipRocketTrack);
 
 module.exports = Router;

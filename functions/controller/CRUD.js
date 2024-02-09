@@ -27,11 +27,17 @@ async function deleteData(collectionName, documentName) {
 async function saveUser(user, userUID) {
   await db.collection("users").doc(userUID).set(user);
 }
-
+async function updateDataAccordingToField(collectionName, fieldName, fieldValue, updateField, updateValue) {
+  const snapshot = await db.collection(collectionName).where(fieldName, "==", fieldValue).get();
+  snapshot.forEach((doc) => {
+    doc.ref.update({ [updateField]: updateValue });
+  });
+}
 module.exports = {
   createData,
   readData,
   updateData,
   deleteData,
   saveUser,
+  updateDataAccordingToField,
 };
