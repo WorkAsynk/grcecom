@@ -33,6 +33,13 @@ async function updateDataAccordingToField(collectionName, fieldName, fieldValue,
     doc.ref.update({ [updateField]: updateValue });
   });
 }
+
+async function updateExistingData(collectionName, fieldToCompare, valueToCompare, updatedData) {
+  const snapshot = await db.collection(collectionName).where(fieldToCompare, "==", valueToCompare).get();
+  snapshot.forEach((doc) => {
+    doc.ref.update(updatedData);
+  });
+}
 module.exports = {
   createData,
   readData,
@@ -40,4 +47,5 @@ module.exports = {
   deleteData,
   saveUser,
   updateDataAccordingToField,
+  updateExistingData,
 };

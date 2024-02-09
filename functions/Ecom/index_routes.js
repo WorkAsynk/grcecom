@@ -9,6 +9,8 @@ const BarCode = require("./bar_code.js");
 const routeOfRocket = require("./integrate_rocket.js");
 const trackOrder = require("./trackOrder.js");
 const shipRocketTrack = require("./trackShipRocket.js");
+const updateShipRocketData = require("./updateShipRocket.js");
+const generateAndUpdateAWB = require("./generateAWB.js");
 // eslint-disable-next-line new-cap
 const Router = require("express").Router();
 
@@ -23,5 +25,6 @@ Router.post("/bar_code", BarCode);
 Router.get("/rocket", routeOfRocket);
 Router.post("/track_order", trackOrder);
 Router.post("/track_shiprocket", shipRocketTrack);
-
+Router.post("/update/ship", updateShipRocketData);
+Router.post("/generate/awb", generateAndUpdateAWB);
 module.exports = Router;
