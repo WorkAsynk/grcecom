@@ -9,7 +9,6 @@ const geolib = require("geolib");
 const baseFreightUnitPrice = 100; // 1kg = 100rs
 const baseFuelUnitPrice = 50; // 1km = 50rs
 const gstRate = 0.18; // GST rate
-const { db } = require("../controller/db.js");
 const shipRocketBookingIntegration = require("./integrate_rocket.js");
 // const sendEmail = require("../mail/mail_controller.js");
 // eslint-disable-next-line require-jsdoc
@@ -65,13 +64,6 @@ const findTotalHeight = (productList) => {
 };
 // function that generates orderID
 
-async function generateOrderID(collectionName) {
-  const docSnap = await db.collection(collectionName).get();
-  const count = docSnap.size + 1;
-  const paddedCount = String(count).padStart(7, "0");
-  const id = "GRC" + paddedCount;
-  return id;
-}
 async function ShipmentPrice(
     pickupPincode,
     deliveryPincode,
@@ -124,17 +116,17 @@ const Booking = async (req, res) => {
       bookingData,
       uid,
       orderData,
+      orderID,
+      awbNumber,
     } = req.body;
     const documentName = generateRandomString(10);
 
-    const awbNumber = generateRandomString(10);
     const referenceNumber = generateRandomString(7);
     // eslint-disable-next-line new-cap
     const orderStatus = OrderStatus();
     const width = findTotalWidth(freightData.productList);
     const height = findTotalHeight(freightData.productList);
     const weight = findTotalWeight(freightData.productList);
-    const orderID = await generateOrderID("ecomOrder");
     // eslint-disable-next-line new-cap
     const { totalPrice, freightCharges, fuelCharges } = await ShipmentPrice(
         consigneeData.pickupPincode,
