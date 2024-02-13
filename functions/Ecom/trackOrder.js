@@ -58,20 +58,35 @@ const trackOrder = async (req, res) => {
     const consigneeData = doc.data().consigneeData;
     const orderStatus = doc.data().orderStatus;
     let locationData;
-    if (orderStatus === "Manifest") {
+    let data;
+    if ([
+      "manifested",
+      "intransit",
+      "delivering",
+      "delivered",
+    ].includes(orderStatus.toLowerCase())) {
       locationData = await getLocationData(orderID);
+      data = {
+        locationData,
+        awbNumber,
+        forwardingNumber,
+        shipperData,
+        consigneeData,
+        orderStatus,
+      };
+      res.status(200).json({ data });
     }
-    res.status(200).json({
-      awbNumber,
-      forwardingNumber,
-      shipperData,
-      consigneeData,
-      orderStatus,
-      locationData,
-    });
+    else {
+      res.status(200).json({
+        orderID: orderID,
+        orderStatus: orderStatus,
+        message: "Order has not been shipped",
+      });
+    }
   }
   catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
+module.exports = trackOrder;
 module.exports = trackOrder;

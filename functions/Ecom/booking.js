@@ -5,6 +5,7 @@ const CRUD = require("../controller/CRUD.js");
 // const db = require("../controller/db.js");
 const NodeGeocoder = require("node-geocoder");
 const geolib = require("geolib");
+const shipControl = require("./ship_control.js");
 
 const baseFreightUnitPrice = 100; // 1kg = 100rs
 const baseFuelUnitPrice = 50; // 1km = 50rs
@@ -21,6 +22,7 @@ function generateRandomString(length) {
   }
   return result;
 }
+
 // eslint-disable-next-line require-jsdoc
 function OrderStatus() {
   const status = ["Pending", "In Transit", "Delivered", "Cancelled"];
@@ -125,9 +127,9 @@ const Booking = async (req, res) => {
     const referenceNumber = generateRandomString(7);
     // eslint-disable-next-line new-cap
     const orderStatus = OrderStatus();
-    let width = findTotalWidth(freightData.productList);
-    let height = findTotalHeight(freightData.productList);
-    let weight = findTotalWeight(freightData.productList);
+    const width = findTotalWidth(freightData.productList);
+    const height = findTotalHeight(freightData.productList);
+    const weight = findTotalWeight(freightData.productList);
     // eslint-disable-next-line new-cap
     const { totalPrice, freightCharges, fuelCharges } = await ShipmentPrice(
         consigneeData.pickupPincode,
@@ -136,9 +138,7 @@ const Booking = async (req, res) => {
         height,
         weight,
     );
-    width *= 1000;
-    height *= 1000;
-    weight *= 1000;
+    const volumetricWeight = (width * height * length) / 5000;
     if (totalPrice !== 0) {
       const data = {
         destinationData,
@@ -159,8 +159,19 @@ const Booking = async (req, res) => {
         orderID,
         orderData,
         length,
+        volumetricWeight,
       };
       await CRUD.createData("ecomOrder", documentName, data);
+      const response = await shipRocketBookingIntegration(data);
+      const totalCharges = await shipControl.getTotalPrice();
+      const invoice = await shipControl.returnInvoice(response.data.order_id);
+      console.log(`Total CHarges: ${totalCharges}`);
+      await CRUD.updateData("ecomOrder", documentName, { invoice: invoice });
+      await CRUD.updateData("ecomOrder", documentName, { totalCharges: totalCharges });
+
+
+      console.log("Data saved successfully");
+
       console.log("Data saved successfully");
       // try {
       //   await sendEmail(
@@ -174,7 +185,6 @@ const Booking = async (req, res) => {
       // catch (error) {
       //   console.log(`Error sending email: ${error}`);
       // }
-      const response = await shipRocketBookingIntegration(data);
       if (response.status === 200) {
         res.status(200).json({ message: "Booking Successful" });
       }
