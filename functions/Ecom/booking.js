@@ -118,15 +118,16 @@ const Booking = async (req, res) => {
       orderData,
       orderID,
       awbNumber,
+      length,
     } = req.body;
     const documentName = generateRandomString(10);
 
     const referenceNumber = generateRandomString(7);
     // eslint-disable-next-line new-cap
     const orderStatus = OrderStatus();
-    const width = findTotalWidth(freightData.productList);
-    const height = findTotalHeight(freightData.productList);
-    const weight = findTotalWeight(freightData.productList);
+    let width = findTotalWidth(freightData.productList);
+    let height = findTotalHeight(freightData.productList);
+    let weight = findTotalWeight(freightData.productList);
     // eslint-disable-next-line new-cap
     const { totalPrice, freightCharges, fuelCharges } = await ShipmentPrice(
         consigneeData.pickupPincode,
@@ -135,6 +136,9 @@ const Booking = async (req, res) => {
         height,
         weight,
     );
+    width *= 1000;
+    height *= 1000;
+    weight *= 1000;
     if (totalPrice !== 0) {
       const data = {
         destinationData,
@@ -154,6 +158,7 @@ const Booking = async (req, res) => {
         uid,
         orderID,
         orderData,
+        length,
       };
       await CRUD.createData("ecomOrder", documentName, data);
       console.log("Data saved successfully");

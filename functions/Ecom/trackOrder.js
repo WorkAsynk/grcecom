@@ -57,7 +57,10 @@ const trackOrder = async (req, res) => {
     const shipperData = doc.data().shipperData;
     const consigneeData = doc.data().consigneeData;
     const orderStatus = doc.data().orderStatus;
-    const locationData = await getLocationData(orderID);
+    let locationData;
+    if (orderStatus === "Manifest") {
+      locationData = await getLocationData(orderID);
+    }
     res.status(200).json({
       awbNumber,
       forwardingNumber,

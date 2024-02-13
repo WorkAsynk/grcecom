@@ -5,6 +5,7 @@ const CRUD = require("../controller/CRUD.js");
 const trackAndUpdate = async (trackFunction, fieldName, fieldValue, res) => {
   try {
     const response = await trackFunction(fieldValue);
+
     await CRUD.updateDataAccordingToField(
         "ecomOrder",
         fieldName,
