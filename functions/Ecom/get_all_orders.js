@@ -6,7 +6,9 @@ const getAllOrders = async (req, res) => {
     } = req.body;
     const data= await findData("ecomOrder", "orderID", orderID);
     const productList= data.freightData.productList;
-    res.status(200).json({ productList });
+    const shipperData= data.shipperData;
+    const consigneeData = data.consigneeData;
+    res.status(200).json({ productList, shipperData, consigneeData });
   }
   catch (error) {
     res.status(500).json({ error: error.message });

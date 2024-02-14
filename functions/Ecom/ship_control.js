@@ -1,5 +1,5 @@
 const axios = require("axios");
-
+const findData = require("../controller/find_data");
 const token = process.env.SHIPROCKET_TOKEN;
 const returnInvoice = async (orderID) => {
   try {
@@ -61,4 +61,42 @@ const getTotalPrice = async () => {
     throw error;
   }
 };
-module.exports = { returnInvoice, getTotalPrice };
+const getLabels = async (req, res) => {
+  try {
+    const { orderID } = req.body;
+    const data = await findData("ecomOrder", "orderID", orderID);
+    const shipmentId = data.shiprocket.shipment_id;
+    const response = await axios.post(
+        "https://apiv2.shiprocket.in/v1/external/courier/generate/label",
+        {
+          shipment_id: [`${shipmentId}`],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token,
+          },
+        },
+    );
+    res.status(200).json(response.data);
+  }
+  catch (error) {
+    console.error(`Error in getLabels: ${error.message}`);
+    throw error;
+  }
+};
+
+const shipInvoice = async (req, res) => {
+  try {
+    const { orderID }= req.body;
+    const data = await findData("ecomOrder", "orderID", orderID);
+    const forwardingOrderID = data.shiprocket.forwardingOrderID;
+    const invoiceUrl = await returnInvoice(forwardingOrderID);
+    res.status(200).json({ invoiceUrl });
+  }
+  catch (error) {
+    console.error(`Error in sendInvoice: ${error.message}`);
+    throw error;
+  }
+};
+module.exports = { returnInvoice, getTotalPrice, getLabels, shipInvoice };
