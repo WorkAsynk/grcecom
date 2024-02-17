@@ -39,10 +39,10 @@ const shipRocketBookingIntegration = async (data) => {
       transaction_charges: 0,
       total_discount: 0,
       sub_total: data.totalPrice,
-      length: 10,
-      breadth: 15,
-      height: data.height,
-      weight: data.weight,
+      length: data.Totallength,
+      breadth: data.Totalwidth,
+      height: data.Totalheight,
+      weight: data.Totalweight,
     };
     const token = process.env.SHIPROCKET_TOKEN;
     functions.logger.info("Data: ", CircularJSON.stringify(Data));

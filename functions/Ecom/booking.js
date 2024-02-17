@@ -28,37 +28,13 @@ function OrderStatus() {
   const status = ["Pending", "In Transit", "Delivered", "Cancelled"];
   return status[0];
 }
-const findTotalWeight = (productList) => {
+const findTotal = (productList, property) => {
   if (productList.length !== 0) {
-    let totalWeight = 0;
+    let total = 0;
     productList.map((product) => {
-      totalWeight = totalWeight + Number(product.weight);
+      total = total + Number(product[property]);
     });
-    return totalWeight;
-  }
-  else {
-    return 0;
-  }
-};
-const findTotalWidth = (productList) => {
-  if (productList.length !== 0) {
-    let totalWidth = 0;
-    productList.map((product) => {
-      totalWidth = totalWidth + Number(product.width);
-    });
-    return totalWidth;
-  }
-  else {
-    return 0;
-  }
-};
-const findTotalHeight = (productList) => {
-  if (productList.length !== 0) {
-    let totalHeight = 0;
-    productList.map((product) => {
-      totalHeight = totalHeight + Number(product.height);
-    });
-    return totalHeight;
+    return total;
   }
   else {
     return 0;
@@ -104,8 +80,6 @@ async function ShipmentPrice(
   const totalPrice = Math.round(totalCharges + gst);
   return {
     totalPrice,
-    freightCharges,
-    fuelCharges,
   };
 }
 const Booking = async (req, res) => {
@@ -117,28 +91,27 @@ const Booking = async (req, res) => {
       shipperData,
       bookingData,
       uid,
-      orderData,
       orderID,
       awbNumber,
-      length,
     } = req.body;
     const documentName = generateRandomString(10);
 
     const referenceNumber = generateRandomString(7);
     // eslint-disable-next-line new-cap
     const orderStatus = OrderStatus();
-    const width = findTotalWidth(freightData.productList);
-    const height = findTotalHeight(freightData.productList);
-    const weight = findTotalWeight(freightData.productList);
+    const Totalweight = findTotal(freightData.productList, "weight");
+    const Totalwidth = findTotal(freightData.productList, "width");
+    const Totalheight = findTotal(freightData.productList, "height");
+    const Totallength = findTotal(freightData.productList, "length");
     // eslint-disable-next-line new-cap
-    const { totalPrice, freightCharges, fuelCharges } = await ShipmentPrice(
+    const { totalPrice } = await ShipmentPrice(
         consigneeData.pickupPincode,
         destinationData.destinationCode,
-        width,
-        height,
-        weight,
+        Totalwidth,
+        Totalheight,
+        Totalweight,
     );
-    const volumetricWeight = (width * height * length) / 5000;
+    const volumetricWeight = (Totalwidth * Totalheight * Totallength) / 5000;
     if (totalPrice !== 0) {
       const data = {
         destinationData,
@@ -150,27 +123,22 @@ const Booking = async (req, res) => {
         awbNumber,
         referenceNumber,
         totalPrice,
-        fuelCharges,
-        freightCharges,
-        weight,
-        height,
-        width,
+        Totalweight,
+        Totalheight,
+        Totalwidth,
+        Totallength,
         uid,
         orderID,
-        orderData,
-        length,
         volumetricWeight,
       };
       await CRUD.createData("ecomOrder", documentName, data);
       const response = await shipRocketBookingIntegration(data);
-      const totalCharges = await shipControl.getTotalPrice();
+      const totalCharges = await shipControl.getTotalPrice() + volumetricWeight*10;
       const invoice = await shipControl.returnInvoice(response.data.order_id);
       console.log(`Total CHarges: ${totalCharges}`);
       await CRUD.updateData("ecomOrder", documentName, { invoice: invoice });
       await CRUD.updateData("ecomOrder", documentName, { totalCharges: totalCharges });
 
-
-      console.log("Data saved successfully");
 
       console.log("Data saved successfully");
       // try {
@@ -185,8 +153,15 @@ const Booking = async (req, res) => {
       // catch (error) {
       //   console.log(`Error sending email: ${error}`);
       // }
+      const responseData = {
+        totalCharges,
+        orderID,
+        orderStatus,
+        volumetricWeight,
+        Totalweight,
+      };
       if (response.status === 200) {
-        res.status(200).json({ message: "Booking Successful" });
+        res.status(200).json({ message: "Booking Successful", responseData });
       }
       else {
         res.status(500).json({ message: "Booking Failed" });
@@ -195,9 +170,8 @@ const Booking = async (req, res) => {
   }
   catch (error) {
     res
-        .status(500)
+        .status(error.status || 500)
         .json({ error: "Failed to save data", message: error.message });
   }
 };
-
 module.exports = Booking;
