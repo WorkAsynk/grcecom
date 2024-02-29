@@ -1,11 +1,11 @@
-const { db } = require("../controller/db.js");
 const axios = require("axios");
+const findData = require("../controller/find_data.js");
 const getLocationData = async (orderID) => {
   try {
     const response = await axios.get(
         `https://apiv2.shiprocket.in/v1/external/courier/track?order_id=` +
-        orderID +
-        "",
+      orderID +
+      "",
         {
           headers: {
             "Content-Type": "application/json",
@@ -39,37 +39,42 @@ const getLocationData = async (orderID) => {
 
 const trackOrder = async (req, res) => {
   try {
-    const orderID = req.body.orderID;
-    const snapshot = await db
-        .collection("ecomOrder")
-        .where("orderID", "==", orderID)
-        .get();
-    if (snapshot.empty) {
-      console.log("No matching documents.");
-      res.status(404).json({ error: "No matching documents" });
-      return;
+    const { orderID, awbNumber, forwardingAWBNumber } = req.body;
+    let doc;
+
+    if (orderID) {
+      doc = await findData("ecomOrder", "orderID", orderID);
     }
-    const doc = snapshot.docs[0];
-    const awbNumber = doc.data().awbNumber;
-    const forwardingNumber = doc.data().forwardingNumber ?
-      doc.data().forwardingNumber :
-      "";
-    const shipperData = doc.data().shipperData;
-    const consigneeData = doc.data().consigneeData;
-    const orderStatus = doc.data().orderStatus;
+    else if (awbNumber) {
+      doc = await findData("ecomOrder", "awbNumber", awbNumber);
+    }
+    else if (forwardingAWBNumber) {
+      // eslint-disable-next-line max-len
+      doc = await findData("ecomOrder", "shiprocket.forwardingAWBNumber", forwardingAWBNumber);
+    }
+    else {
+      // eslint-disable-next-line max-len
+      return res.status(400).json({ error: "No orderID, awbNumber or forwardingNumber provided" });
+    }
+
+    if (!doc) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    const shipperData = doc.shipperData;
+    const orderIDD= doc.orderID;
+    const consigneeData = doc.consigneeData;
+    const orderStatus = doc.orderStatus;
     let locationData;
     let data;
-    if ([
-      "manifested",
-      "intransit",
-      "delivering",
-      "delivered",
-    ].includes(orderStatus.toLowerCase())) {
+
+    // eslint-disable-next-line max-len
+    if (["manifested", "intransit", "delivering", "delivered"].includes(orderStatus.toLowerCase())) {
       locationData = await getLocationData(orderID);
       data = {
         locationData,
-        awbNumber,
-        forwardingNumber,
+        awbNumber: doc.awbNumber,
+        forwardingNumber: doc.forwardingNumber || "",
         shipperData,
         consigneeData,
         orderStatus,
@@ -78,7 +83,7 @@ const trackOrder = async (req, res) => {
     }
     else {
       res.status(200).json({
-        orderID: orderID,
+        orderID: orderIDD,
         orderStatus: orderStatus,
         message: "Order has not been shipped",
       });
@@ -88,5 +93,4 @@ const trackOrder = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-module.exports = trackOrder;
 module.exports = trackOrder;
