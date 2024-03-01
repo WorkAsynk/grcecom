@@ -66,20 +66,32 @@ const getLabels = async (req, res) => {
     const { orderID } = req.body;
     const data = await findData("ecomOrder", "orderID", orderID);
     const shipmentId = data.shiprocket.shipment_id;
-    const response = await axios.post(
-        "https://apiv2.shiprocket.in/v1/external/courier/generate/label",
-        {
-          shipment_id: [`${shipmentId}`],
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token,
+    const orderStatus= data.orderStatus;
+    // eslint-disable-next-line max-len
+    const checkorderStatus = orderStatus === "pending" || orderStatus === "pickup" || orderStatus === "picked_up";
+    if (checkorderStatus) {
+      const response = await axios.post(
+          "https://apiv2.shiprocket.in/v1/external/courier/generate/label",
+          {
+            shipment_id: [`${shipmentId}`],
           },
-        },
-    );
-    res.status(200).json(response.data);
+          {
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": "Bearer " + token,
+            },
+          },
+      );
+      res.status(200).json(response.data);
+    }
+    else {
+      res.status(200).json({
+        "orderStatus": orderStatus,
+        "message": "The product is already shipped",
+      });
+    }
   }
+
   catch (error) {
     console.error(`Error in getLabels: ${error.message}`);
     throw error;

@@ -133,9 +133,9 @@ const Booking = async (req, res) => {
       };
       await CRUD.createData("ecomOrder", documentName, data);
       const response = await shipRocketBookingIntegration(data);
-      const totalCharges = await shipControl.getTotalPrice() + volumetricWeight*10;
+      // const totalCharges = await shipControl.getTotalPrice() + volumetricWeight*10;
+      const totalCharges= 0;
       const invoice = await shipControl.returnInvoice(response.data.order_id);
-      console.log(`Total CHarges: ${totalCharges}`);
       await CRUD.updateData("ecomOrder", documentName, { invoice: invoice });
       await CRUD.updateData("ecomOrder", documentName, { totalCharges: totalCharges });
 
