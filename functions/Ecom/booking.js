@@ -5,12 +5,13 @@ const CRUD = require("../controller/CRUD.js");
 // const db = require("../controller/db.js");
 const NodeGeocoder = require("node-geocoder");
 const geolib = require("geolib");
+const shipControl = require("./ship_control.js");
 
 const baseFreightUnitPrice = 100; // 1kg = 100rs
 const baseFuelUnitPrice = 50; // 1km = 50rs
 const gstRate = 0.18; // GST rate
-const { db } = require("../controller/db.js");
-const sendEmail = require("../mail/mail_controller.js");
+const shipRocketBookingIntegration = require("./integrate_rocket.js");
+// const sendEmail = require("../mail/mail_controller.js");
 // eslint-disable-next-line require-jsdoc
 function generateRandomString(length) {
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -21,42 +22,19 @@ function generateRandomString(length) {
   }
   return result;
 }
+
 // eslint-disable-next-line require-jsdoc
-function OrdersStatus() {
+function OrderStatus() {
   const status = ["Pending", "In Transit", "Delivered", "Cancelled"];
   return status[0];
 }
-const findTotalWeight = (productList) => {
+const findTotal = (productList, property) => {
   if (productList.length !== 0) {
-    let totalWeight = 0;
+    let total = 0;
     productList.map((product) => {
-      totalWeight = totalWeight + Number(product.weight);
+      total = total + Number(product[property]);
     });
-    return totalWeight;
-  }
-  else {
-    return 0;
-  }
-};
-const findTotalWidth = (productList) => {
-  if (productList.length !== 0) {
-    let totalWidth = 0;
-    productList.map((product) => {
-      totalWidth = totalWidth + Number(product.width);
-    });
-    return totalWidth;
-  }
-  else {
-    return 0;
-  }
-};
-const findTotalHeight = (productList) => {
-  if (productList.length !== 0) {
-    let totalHeight = 0;
-    productList.map((product) => {
-      totalHeight = totalHeight + Number(product.height);
-    });
-    return totalHeight;
+    return total;
   }
   else {
     return 0;
@@ -64,13 +42,6 @@ const findTotalHeight = (productList) => {
 };
 // function that generates orderID
 
-async function generateOrderID(collectionName) {
-  const docSnap = await db.collection(collectionName).get();
-  const count = docSnap.size + 1;
-  const paddedCount = String(count).padStart(7, "0");
-  const id = "GRC" + paddedCount;
-  return id;
-}
 async function ShipmentPrice(
     pickupPincode,
     deliveryPincode,
@@ -109,8 +80,6 @@ async function ShipmentPrice(
   const totalPrice = Math.round(totalCharges + gst);
   return {
     totalPrice,
-    freightCharges,
-    fuelCharges,
   };
 }
 const Booking = async (req, res) => {
@@ -122,27 +91,27 @@ const Booking = async (req, res) => {
       shipperData,
       bookingData,
       uid,
-      orderData,
+      orderID,
+      awbNumber,
     } = req.body;
     const documentName = generateRandomString(10);
 
-    const awbNumber = generateRandomString(10);
     const referenceNumber = generateRandomString(7);
     // eslint-disable-next-line new-cap
-    const ordersStatus = OrdersStatus();
-    const width = findTotalWidth(freightData.productList);
-    const height = findTotalHeight(freightData.productList);
-    const weight = findTotalWeight(freightData.productList);
-    const orderID = await generateOrderID("ecomOrder");
+    const orderStatus = OrderStatus();
+    const Totalweight = findTotal(freightData.productList, "weight");
+    const Totalwidth = findTotal(freightData.productList, "width");
+    const Totalheight = findTotal(freightData.productList, "height");
+    const Totallength = findTotal(freightData.productList, "length");
     // eslint-disable-next-line new-cap
-    const { totalPrice, freightCharges, fuelCharges } = await ShipmentPrice(
+    const { totalPrice } = await ShipmentPrice(
         consigneeData.pickupPincode,
         destinationData.destinationCode,
-        width,
-        height,
-        weight,
+        Totalwidth,
+        Totalheight,
+        Totalweight,
     );
-    console.log(totalPrice, "hii");
+    const volumetricWeight = (Totalwidth * Totalheight * Totallength) / 5000;
     if (totalPrice !== 0) {
       const data = {
         destinationData,
@@ -150,49 +119,59 @@ const Booking = async (req, res) => {
         consigneeData,
         shipperData,
         bookingData,
-        ordersStatus,
+        orderStatus,
         awbNumber,
         referenceNumber,
         totalPrice,
-        fuelCharges,
-        freightCharges,
-        weight,
-        height,
-        width,
+        Totalweight,
+        Totalheight,
+        Totalwidth,
+        Totallength,
         uid,
         orderID,
-        orderData,
+        volumetricWeight,
       };
       await CRUD.createData("ecomOrder", documentName, data);
-      try {
-        await sendEmail(
-            shipperData.email,
-            "Booking Confirmation",
-            awbNumber,
-            consigneeData,
-            destinationData,
-        );
+      const response = await shipRocketBookingIntegration(data);
+      // const totalCharges = await shipControl.getTotalPrice() + volumetricWeight*10;
+      const totalCharges= 0;
+      const invoice = await shipControl.returnInvoice(response.data.order_id);
+      await CRUD.updateData("ecomOrder", documentName, { invoice: invoice });
+      await CRUD.updateData("ecomOrder", documentName, { totalCharges: totalCharges });
+
+
+      console.log("Data saved successfully");
+      // try {
+      //   await sendEmail(
+      //       shipperData.email,
+      //       "Booking Confirmation",
+      //       awbNumber,
+      //       consigneeData,
+      //       destinationData,
+      //   );
+      // }
+      // catch (error) {
+      //   console.log(`Error sending email: ${error}`);
+      // }
+      const responseData = {
+        totalCharges,
+        orderID,
+        orderStatus,
+        volumetricWeight,
+        Totalweight,
+      };
+      if (response.status === 200) {
+        res.status(200).json({ message: "Booking Successful", responseData });
       }
-      catch (error) {
-        console.log(`Error sending email: ${error}`);
+      else {
+        res.status(500).json({ message: "Booking Failed" });
       }
-      res.status(201).json({
-        message: "Your shipment is booked",
-        awbNumber,
-        referenceNumber,
-        ordersStatus,
-        totalPrice,
-        fuelCharges,
-        freightCharges,
-        uid,
-      });
     }
   }
   catch (error) {
     res
-        .status(500)
+        .status(error.status || 500)
         .json({ error: "Failed to save data", message: error.message });
   }
 };
-
 module.exports = Booking;
