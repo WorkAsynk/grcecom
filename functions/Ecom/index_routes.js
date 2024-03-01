@@ -6,6 +6,12 @@ const deleteDocument = require("./delete_document.js");
 const updateData = require("./update_data.js");
 const sendInvoice = require("./send_invoice.js");
 const BarCode = require("./bar_code.js");
+const trackOrder = require("./trackOrder.js");
+const shipRocketTrack = require("./trackShipRocket.js");
+const updateShipRocketData = require("./updateShipRocket.js");
+const generateAndUpdateAWB = require("./generateAWB.js");
+const getAllOrders = require("./get_all_orders.js");
+const { getLabels, shipInvoice }= require("./ship_control.js");
 // eslint-disable-next-line new-cap
 const Router = require("express").Router();
 
@@ -17,5 +23,11 @@ Router.post("/delete_document", deleteDocument);
 Router.post("/update_data", updateData);
 Router.post("/send_invoice", sendInvoice);
 Router.post("/bar_code", BarCode);
-
+Router.post("/track_order", trackOrder);
+Router.post("/track_shiprocket", shipRocketTrack);
+Router.post("/update/ship", updateShipRocketData);
+Router.post("/generate/awb", generateAndUpdateAWB);
+Router.post("/get/orders", getAllOrders);
+Router.post("/ship/labels", getLabels);
+Router.post("/ship/invoice", shipInvoice);
 module.exports = Router;

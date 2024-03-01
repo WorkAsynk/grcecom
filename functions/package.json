@@ -17,6 +17,7 @@
     "@google-cloud/firestore": "^7.3.0",
     "axios": "^1.6.7",
     "bwip-js": "^4.2.0",
+    "circular-json": "^0.5.9",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
