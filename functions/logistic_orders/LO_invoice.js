@@ -1,10 +1,10 @@
-const firestore = require("../controller/CRUD.js").firestore;
-const generateInvoice = require("../controller/Invoice.js");
+const { db } = require("../controller/db.js");
+const generateInvoice = require("./invoice_controller.js");
 const { storage } = require("../controller/db.js");
 const sendInvoice = async (req, res) => {
   try {
     const { orderID } = req.body;
-    const docSnap = await firestore
+    const docSnap = await db
         .collection("logisticOrder")
         .where("orderID", "==", orderID)
         .get();
@@ -34,10 +34,12 @@ const sendInvoice = async (req, res) => {
         const publicUrl = `https://storage.googleapis.com/${
           storage.bucket().name
         }/LO/${blob.name}`;
-        // Update the document in Firestore to include the invoice URL
-        const docRef = firestore.collection("logisticOrder").doc(docIds[0]);
+        // Update the document in db to include the invoice URL
+        const docRef = db.collection("logisticOrder").doc(docIds[0]);
         await docRef.update({ invoice: publicUrl });
-        res.status(200).send({ url: publicUrl });
+        // Convert the PDF data to a base64 string
+        const pdfBase64 = invoiceData.toString("base64");
+        res.status(200).send({ url: publicUrl, pdf: pdfBase64 });
       });
       blobStream.end(invoiceData);
     }
