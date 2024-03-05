@@ -29,6 +29,7 @@ const BookingHandler = async (Data) => {
   }
   catch (error) {
     console.error(`Error in BookingHandler: ${error}`);
+    throw error;
   }
   if (response.data) {
     return response.data;
