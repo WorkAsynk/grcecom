@@ -93,8 +93,7 @@ const getLabels = async (req, res) => {
   }
 
   catch (error) {
-    console.error(`Error in getLabels: ${error.message}`);
-    throw error;
+    res.status(500).json({ "Error": error });
   }
 };
 
