@@ -11,11 +11,10 @@ async function generateInvoiceLO(data) {
         .map(
             (suborder) => `
         <tr>
-            <td>${suborder.id}</td>
-            <td>${suborder.name}</td>
-            <td>${suborder.height}</td>
-            <td>${suborder.width}</td>
-            <td>${suborder.weight}</td>
+            <td>${suborder.count}</td>
+            <td>${suborder.description}</td>
+            <td>${suborder.ident}</td>
+            <td>${suborder.waybills[0]}</td>
         </tr>
 `,
         )
@@ -117,12 +116,11 @@ async function generateInvoiceLO(data) {
       
         <table>
           <tr>
-            <th>Suborder ID</th> 
+            <th>Count</th> 
             <th>Description</th> 
-            <th>Waybill Number</th>
-            <th>Length</th>  
-            <th>Width</th> 
-            <th>Height</th> 
+            <th> Ident</th>
+            <th>wa  </th>  
+            <th>Width</th>  
           </tr> 
          
                ${itemsHtml} 
